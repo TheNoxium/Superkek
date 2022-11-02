@@ -1,1 +1,5 @@
-ASDasdASDasdASDAsd
+<?php
+
+echo "hello word"
+
+?>
