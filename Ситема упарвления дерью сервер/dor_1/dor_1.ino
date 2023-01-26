@@ -1,22 +1,29 @@
 #include <ESP8266WiFi.h>
 
-const char* ssid = "Cats_Ass";
-const char* password = "12345678s";
+const char* ssid = "Убийца кальмаров";
+const char* password = "88888888";
 
-const char* host = "192.168.1.56";
+const char* host = "172.20.10.2";
 
 int buff=0;
 
 //char c;
 int led = 16;
+int led2 = 5;
+int led3 = 12;
+int tonepin = 04;
 
-int temp = 666;
-int hum = 666;
+//int temp = 123;
+//int hum = 123;
   
 
 void setup()
 {
+  Serial.printf("Здорова отец ");
   pinMode(led, OUTPUT);
+  pinMode(led2, OUTPUT);
+  pinMode(tonepin, OUTPUT);
+  
   Serial.begin(115200);
   Serial.println();
 
@@ -62,6 +69,13 @@ void loop()
         if ( c=='1')
         {
         buff=1;
+        tone (tonepin,200);
+         delay(100);
+         tone (tonepin,200);
+         delay(100);
+         tone (tonepin,200);
+         delay(100);
+         noTone(tonepin);
         }
         if ( c=='0')
         {
@@ -82,10 +96,12 @@ void loop()
   if ( buff==1)
         {
         digitalWrite (led, HIGH);
+        digitalWrite (led2, LOW);
         }
         else
         {
-          digitalWrite(led, LOW);
+           digitalWrite(led, LOW);
+           digitalWrite(led2, HIGH);
         }
   delay(500);
   Serial.println(buff);
@@ -97,14 +113,14 @@ void loop()
     Serial.println("конекчусь как ебанучка");
     client.print("GET /insert.php?");
      Serial.print("Отправляю: GET /insert.php?");
-    client.print("temp=");
-     Serial.print("temp=");
-    client.print(temp);
-     Serial.print(temp);
-    client.print("&hum=");
-     Serial.print("&hum=");
-    client.print(hum);
-     Serial.print(hum);
+   //client.print("temp=");
+    // Serial.print("temp=");
+   // client.print(temp);
+   //  Serial.print(temp);
+   // client.print("&hum=");
+    // Serial.print("&hum=");
+    //client.print(hum);
+    // Serial.print(hum);
     client.println(" HTTP/1.1");
      Serial.println(" HTTP/1.1");
   client.print( "Host: " );
