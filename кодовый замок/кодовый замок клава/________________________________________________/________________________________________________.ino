@@ -1,13 +1,24 @@
 #include "Keypad.h"  //библиотека клавиатуры
 #include <EEPROMex.h>
-#define BUTTON_PIN  12
-#define LED1_PIN    7   // 7  green
-#define LED2_PIN    10  // 10 blue
-#define LED3_PIN    8   // 8  red 
-#define MOTO_PIN    5
-#define TONE_PIN    3
+
+#define LED1_PIN    D0   // 7  green
+#define LED2_PIN    D10  // 10 blue
+#define LED3_PIN    D1   // 8  red 
+//#define MOTO_PIN    D2
+#define TONE_PIN    D2
+
+//int led =  D0;    //зеленый
+//int led2 = D1;    //красны
+//int led3 = D10;    //синий
+//int tonepin = D2; //динамик
+//int rad = 15;
 
 
+
+
+//gpio0,gpio2,gpio12,gpio15,gpio3
+
+//D3 D4  D5 D6 D7  D8  RX - D9 TX - D10 
 int tone_frequency[] = {700, 700, 700, 700, 555, 620, 700, 620, 700};
 int tone_duration[]  = {175,  60,  60, 320, 350, 350, 175,  75, 700};
 int delay_duration[] = {225,  95,  95, 350, 385, 385, 275, 110, 770};
@@ -25,8 +36,8 @@ char keys[4][3] = {
   {'7', '8', '9'},
   {'*', '0', '#'}
 };
-byte rowPins[] = {12, 11, 9, 6};     // Подключены строки (4 пина)
-byte colPins[] = {5, 4, 2};          // подключены столбцы (4 пина)
+byte rowPins[] = {D3, D4, D5, D6};     // Подключены строки (4 пина)
+byte colPins[] = {D7, D8, D9};          // подключены столбцы (4 пина)
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, 4, 3 ); //иниициализировать клавиатуру
 
 void setup() {

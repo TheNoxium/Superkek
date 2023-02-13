@@ -9,11 +9,7 @@ MFRC522 rfid(SS_PIN, RST_PIN); // Instance of the class
 MFRC522::MIFARE_Key key;
 String tag;
 
-int tone_frequency[] = {700, 700, 700, 700, 555, 620, 700, 620, 700};
-int tone_duration[]  = {175,  60,  60, 320, 350, 350, 175,  75, 700};
-int delay_duration[] = {225,  95,  95, 350, 385, 385, 275, 110, 770};
-byte count = 0;
-byte count_max = 9;
+
 
 void setup() {
   Serial.begin(9600);
@@ -26,6 +22,7 @@ void setup() {
  
 }
 void loop() {
+  
   digitalWrite(D0, HIGH);
    if ( ! rfid.PICC_IsNewCardPresent())
     return;
@@ -39,45 +36,30 @@ void loop() {
       digitalWrite(D0, LOW);
       digitalWrite(D2, HIGH);
       
-            tone(D8, tone_frequency[count], tone_duration[count]);
-            delay(delay_duration[count]);  
+           tone (D8,700); 
+           delay(200);
+           noTone(D8); 
             
-            delay(60000);
-           tone (D8,200); 
+           delay(5000);
+           tone (D8,500); 
            delay(200);
-           tone (D8,100); 
-           delay(200);
-           noTone(D8);
+           noTone(D8); 
            digitalWrite(D2, LOW);
     } else if (tag == "1606717532") {
           Serial.println("Access Granted!");
       digitalWrite(D0, LOW);
       digitalWrite(D2, HIGH);
       
-            tone(D8, tone_frequency[count], tone_duration[count]);
-            delay(delay_duration[count]);  
-            
-            delay(60000);
-           tone (D8,200); 
+           tone (D8,700); 
            delay(200);
-           tone (D8,100); 
+           noTone(D8); 
+
+           delay(5000);
+           tone (D8,500); 
            delay(200);
            noTone(D8);
            digitalWrite(D2, LOW);
-    } else if (tag == "3393818595") {
-      Serial.println("Access Granted!");
-      digitalWrite(D8, HIGH);
-      delay(100);
-      digitalWrite(D8, LOW);
-      delay(100);
-      digitalWrite(D8, HIGH);
-      delay(100);
-      digitalWrite(D8, LOW);
-      delay(100);
-      digitalWrite(D8, HIGH);
-      delay(100);
-      digitalWrite(D8, LOW);
-      delay(100);
+    
     } else {
       Serial.println("Access Denied!");
       digitalWrite(D8, HIGH);
