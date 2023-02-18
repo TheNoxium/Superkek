@@ -19,9 +19,13 @@ void loop() {
         {
       Serial.println(" ");    
       Serial.print(SD.begin( chipSelect ));
+
       SD.open("test.txt");
+      
       Serial.println(SD.open("test.txt"));
+
       File dataFile = SD.open("test.txt");
+
       buffer = dataFile.readStringUntil('\n');
       SD.end( chipSelect );
       Serial.println(buffer);
