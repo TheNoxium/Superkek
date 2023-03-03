@@ -31,6 +31,7 @@
 #define HREF_GPIO_NUM     23
 #define PCLK_GPIO_NUM     22
 
+unsigned long last_time;
 
 camera_config_t config;                 // Конфигурациия камеры
 
@@ -66,6 +67,9 @@ void setup() {
 }
 
 void loop() {
+
+  if (millis() - last_time > 10000)
+  {
   timeClient.update();
 
   unsigned long epochTime = timeClient.getEpochTime();  
@@ -88,7 +92,9 @@ void loop() {
 
 
   takeSavePhoto(path);
-  delay(Pausa);                                    // Пауза между фотками 
+ // delay(Pausa);
+ last_time = millis();
+ }                                    // Пауза между фотками 
 }
 
  // Конфигурациия камеры   

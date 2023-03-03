@@ -9,6 +9,20 @@ const char* password = "12345678s";
 #include "FS.h"             
 #include "SD_MMC.h"    
 
+#include <NTPClient.h>
+#include <WiFiUdp.h>
+#include "driver/rtc_io.h"
+
+unsigned long last_time;
+
+camera_config_t config;
+
+int currentHour, currentMinute, currentSecond, monthDay, currentMonth, currentYear; 
+
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, "pool.ntp.org", 10800, 60000); // ТАЙМЗОНА(в сек.)  соединение 1раз/ минуту
+String Date;
+
 String Feedback=""; 
 
 
@@ -23,8 +37,6 @@ String P6="";
 String P7="";
 String P8="";
 String P9="";
-
-String buffer;
 
 byte ReceiveState=0;
 byte cmdState=1;
@@ -159,47 +171,41 @@ void setup() {
   digitalWrite(4, LOW);  
 
   server.begin();  
-}
-
-void readFile(fs::FS &fs, const char * path){
-    Serial.printf("Reading file: %s\n", path);
-
-    File filele = fs.open(path);
-    
-    if (filele) {
-        // считываем все байты из файла и выводим их в COM-порт
-       while (filele.available()) //Читаем содержимое файла
-  {
-    buffer = filele.readStringUntil('\n');//Считываем с карты весь дотекст в строку до символа окончания.
-    Serial.println(buffer); // для отладки отправляем по UART все что прочитали с карты.
-  }
-    filele.close();
-    SD_MMC.end();
-    delay(10000);
-   } else {
-        // выводим ошибку если не удалось открыть файл
-        Serial.println("error opening test.txt");
-        //listenConnection();  
-        // SD_MMC.end();
-         listenConnection();
-    }
-        
-       
-    
+  timeClient.begin();   
 }
 
 void loop() {
 
- 
- 
- 
-  if (SD_MMC.begin()){
-  uint8_t cardType = SD_MMC.cardType();
-  readFile(SD_MMC, "/test.txt");
-  SD_MMC.end();
-  } else {
-     listenConnection();  
-  }
+
+  if (millis() - last_time > 10000)
+  {
+  timeClient.update();
+
+  unsigned long epochTime = timeClient.getEpochTime();  
+  currentHour = timeClient.getHours();            // Часы  
+  currentMinute = timeClient.getMinutes();        // Минуты   
+  currentSecond = timeClient.getSeconds();        // Секунды  
+  struct tm *ptm = gmtime ((time_t *)&epochTime); //Структура даты 
+  monthDay = ptm->tm_mday;                        // День  
+  currentMonth = ptm->tm_mon+1;                   // Месяц  
+  currentYear = ptm->tm_year+1900;                // Год
+ Date = String(monthDay)+"."+String(currentMonth)+"."+String(currentYear)+"."+String(currentHour)+"."+String(currentMinute)+"."+String(currentSecond);
+  
+  //Название и путь для сохранения фото на SD Card
+  String path = "/" + String(Date) +".jpg";  
+
+  //Получить и сохранить фото
+
+  Serial.print("Проверка MicroSD card модуля. ");
+  initMicroSDCard();
+
+
+  takeSavePhoto(path);
+ // delay(Pausa);
+ last_time = millis();
+ }  
+
+  listenConnection();  
 }
 
 
@@ -259,13 +265,8 @@ void ExecuteCommand() {
   } else if (cmd=="saturation") {             //Насыщенность
     sensor_t * s = esp_camera_sensor_get();
     s->set_saturation(s, P1.toInt());          
-  } else if (cmd=="saveimage") {              // Сохранить картинку
-    saveCapturedImage(P1);
-    Feedback=ListImages();
-  } else if (cmd=="listimages") {             // Список файлов
-    Feedback=ListImages();
-  } else if (cmd=="deleteimage") {            // Удалить файл
-    Feedback=deleteimage(P1)+"<br>"+ListImages();
+  
+  
   } else {
     Feedback="Команда не определена.";
   }
@@ -326,7 +327,6 @@ void listenConnection() {
     delay(1);
     client.stop();
   }
-  
 }
 
 // Создаём HTML страницу
@@ -630,7 +630,7 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(<!doctype html>
             </div>
         </figure>
   <!-- Размер и положение списка файлов -->
-        <iframe id="ifr" width="410" height="200" style=" position:absolute; left:400px;"></iframe> 
+        
         <section class="main">
             <div id="logo">
                 <label for="nav-toggle-cb" id="nav-toggle">&#9776;&nbsp;&nbsp;Настройки камеры</label>
@@ -645,18 +645,8 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(<!doctype html>
                             <button id="stopStream">Стоп</button>
                             <button id="startStream">Видео</button>                                                        
                         </section>
-                        <div class="input-group" id="saveStill-group">
-                            <label for="saveStill">Запись на диск</label>
-                            <section id="buttons">
-                            <button id="saveStill">Сохранить</button>
-                            </section>
-                        </div> 
-                        <div class="input-group" id="imageList-group">
-                            <label for="imageList">Список файлов</label>
-                            <section id="buttons">
-                            <button id="imageList">Получить список</button>
-                            </section>
-                        </div>                                     
+                        
+                                                        
                         <div class="input-group" id="flash-group">
                             <label for="flash">Яркость</label>
                             <div class="range-min">0</div>
@@ -795,13 +785,21 @@ document.addEventListener('DOMContentLoaded', function (event) {
   const message = document.getElementById('message');
   const restartButton = document.getElementById('restart')            
   const flash = document.getElementById('flash')
-  const saveStill = document.getElementById('saveStill');
-  const imageList = document.getElementById('imageList');
+  
+  
   const ifr = document.getElementById('ifr');
               
    var myTimer;
   var restartCount=0;    
   var streamState = false;
+clearInterval(myTimer);
+    streamState=true;
+    myTimer = setInterval(function(){error_handle();},5000); 
+    view.src = location.origin+'/?getstill='+Math.random();
+    show(viewContainer);
+    //ifr.style.display="none";
+
+  
   
    streamButton.onclick = function (event) {
     clearInterval(myTimer);
@@ -811,12 +809,14 @@ document.addEventListener('DOMContentLoaded', function (event) {
     show(viewContainer);
     //ifr.style.display="none";
   }
+
   function error_handle() {
     restartCount++;
     clearInterval(myTimer);
     if (restartCount<=2) {
       message.innerHTML = "Получена ошибка. <br> Попробуйте через "+restartCount+" минут.";
       myTimer = setInterval(function(){streamButton.click();},10000);
+    
     }
     else
       message.innerHTML = "Ошибка. <br>Перезагрузите плату ESP32-cAM.";
@@ -836,16 +836,8 @@ document.addEventListener('DOMContentLoaded', function (event) {
     message.innerHTML = "";
 //    ifr.style.display="none";
   }
-  imageList.onclick = function (event) {
-    show(viewContainer);
-    ifr.style.display="block";
-    ifr.src = baseHost+'?listimages';
-  }
-  saveStill.onclick = function (event) {
-    show(viewContainer);
-    ifr.style.display="block";
-    ifr.src =baseHost+'?saveimage='+(new Date().getFullYear()*10000000000+(new Date().getMonth()+1)*100000000+new Date().getDate()*1000000+new Date().getHours()*10000+new Date().getMinutes()*100+new Date().getSeconds()+new Date().getSeconds()*0.001).toString();
-  }      
+
+ 
    
   stillButton.onclick = () => {
     stopButton.click();
@@ -858,6 +850,7 @@ document.addEventListener('DOMContentLoaded', function (event) {
   restartButton.onclick = () => {
     fetch(baseHost+"/?restart");
   }    
+
   document
     .querySelectorAll('.default-action')
     .forEach(el => {
@@ -958,109 +951,9 @@ void getStill() {
   digitalWrite(4, LOW);              
 }
 
-String saveCapturedImage(String filename) {    
-  String response = ""; 
-  String path_jpg = "/"+filename+".jpg";
 
-  camera_fb_t * fb = NULL;
-  fb = esp_camera_fb_get();  
-  if(!fb) {
-    Serial.println("Сбой захвата камеры");
-    return "<font color=Red>Сбой захвата камеры</font>";
-  }
 
-  //SD Card
-  if(!SD_MMC.begin()){
-    response = "Не установлена Карта памяти";
-    return "<font color=yellow>Не установлена Карта памяти</font>";
-  }  
-  
-  fs::FS &fs = SD_MMC; 
-  Serial.printf("Имя файла-картинки: %s\n", path_jpg.c_str());
 
-  File file = fs.open(path_jpg.c_str(), FILE_WRITE);
-  if(!file){
-    esp_camera_fb_return(fb);
-    SD_MMC.end();
-    return "<font color=Red>Не удалось открыть файл в режиме записи</font>";
-  } 
-  else {
-    file.write(fb->buf, fb->len);
-    Serial.printf("Файл записан по адресу: %s\n", path_jpg.c_str());
-  }
-  file.close();
-  SD_MMC.end();
-
-  esp_camera_fb_return(fb);
-  Serial.println("");
-
-  pinMode(4, OUTPUT);
-  digitalWrite(4, LOW);  
-  
-  return response;
-}
-
-String ListImages() {
-  //SD Card
-  if(!SD_MMC.begin()){
-    Serial.println("Не установлена Карта памяти");
-    return "<font color=Red>Не установлена Карта памяти</font>";
-  }  
-  
-  fs::FS &fs = SD_MMC; 
-  File root = fs.open("/");
-  if(!root){
-    Serial.println("Не удалось открыть каталог");
-    return "<font color=Red>Не удалось открыть каталог</font>";
-  }
-
-  String list="";
-  File file = root.openNextFile();
-  while(file){
-    if(!file.isDirectory()){
-      String filename=String(file.name());
-      if (filename=="/"+P1+".jpg"){
-        
-        list = "<tr style=\"border: 2px solid red\"><td><button onclick=\'location.href = location.origin+\"?deleteimage="+String(file.name())+"\";\'>Удалить</button></td><td><font color=Green>"+String(file.name())+"</font></td><td align=\'right\'><font color=Green>"+String(file.size())+"</font></td><td><button onclick=\'parent.document.getElementById(\"stream\").src=location.origin+\"?showimage="+String(file.name())+"\";\'>Смотреть</button></td></tr>"+list;
-      } else
-        list = "<tr><td><button onclick=\'location.href = location.origin+\"?deleteimage="+String(file.name())+"\";\'>Удалить</button></td><td><font color=Green>"+String(file.name())+"</font></td><td align=\'right\'><font color=Green>"+String(file.size())+"</font></td><td><button onclick=\'parent.document.getElementById(\"stream\").src=location.origin+\"?showimage="+String(file.name())+"\";\'>Смотреть</button></td></tr>"+list;        
-    }
-    file = root.openNextFile();
-  }
-  list="<table border=1><tr><td align=\'center\'><font color=Silver>Удалить</font></td><td align=\'center\'><font color=White>Имя файла</font></td><td align=\'center\'><font color=White>Размер</font></td><td align=\'center\'><font color=Silver>Смотреть</font></td></tr>"+list+"</table>";
-
-  file.close();
-  SD_MMC.end();
-
-  pinMode(4, OUTPUT);
-  digitalWrite(4, LOW);   
-  
-  return list;
-}
-
-String deleteimage(String filename) {
-  //SD Card
-  if(!SD_MMC.begin()){
-    Serial.println("Не установлена Карта памяти");
-    return "Не установлена Карта памяти";
-  }  
-  
-  fs::FS &fs = SD_MMC;
-  File file = fs.open(filename);
-  String message="";
-  if(fs.remove(filename)){
-      message = "<font color=Red>" + filename + " Файл удалён</font>";
-  } else {
-      message = "<font color=Red>" + filename + " удалён</font>";
-  }
-  file.close();
-  SD_MMC.end();
-
-  pinMode(4, OUTPUT);
-  digitalWrite(4, LOW);   
-
-  return message;
-}
 
 void showimage() {
   if(!SD_MMC.begin()){
@@ -1138,3 +1031,83 @@ void getCommand(char c) {
     if ((strState>=9)&&(c==';')) semicolonstate=1;
   }
 }
+
+void configInitCamera(){
+  config.ledc_channel = LEDC_CHANNEL_0;
+  config.ledc_timer = LEDC_TIMER_0;
+  config.pin_d0 = Y2_GPIO_NUM;
+  config.pin_d1 = Y3_GPIO_NUM;
+  config.pin_d2 = Y4_GPIO_NUM;
+  config.pin_d3 = Y5_GPIO_NUM;
+  config.pin_d4 = Y6_GPIO_NUM;
+  config.pin_d5 = Y7_GPIO_NUM;
+  config.pin_d6 = Y8_GPIO_NUM;
+  config.pin_d7 = Y9_GPIO_NUM;
+  config.pin_xclk = XCLK_GPIO_NUM;
+  config.pin_pclk = PCLK_GPIO_NUM;
+  config.pin_vsync = VSYNC_GPIO_NUM;
+  config.pin_href = HREF_GPIO_NUM;
+  config.pin_sscb_sda = SIOD_GPIO_NUM;
+  config.pin_sscb_scl = SIOC_GPIO_NUM;
+  config.pin_pwdn = PWDN_GPIO_NUM;
+  config.pin_reset = RESET_GPIO_NUM;
+  config.xclk_freq_hz = 20000000;
+  config.pixel_format = PIXFORMAT_JPEG; 
+
+   if(psramFound()){
+    config.frame_size = FRAMESIZE_UXGA; 
+    config.jpeg_quality = 10; 
+    config.fb_count = 2;
+  } else {
+    config.frame_size = FRAMESIZE_SVGA;
+    config.jpeg_quality = 12;
+    config.fb_count = 1;
+  }
+  
+  // Инициализация камеры
+  esp_err_t err = esp_camera_init(&config);
+  if (err != ESP_OK) {
+    Serial.printf("Ошибка инициализации камеры 0x%x", err);
+    return;
+  }
+}
+
+void initMicroSDCard(){
+  if(!SD_MMC.begin()){
+    Serial.println("SD Card не работает");
+    SD_MMC.end();
+   // return;
+  }
+  uint8_t cardType = SD_MMC.cardType();
+  if(cardType == CARD_NONE){
+    Serial.println("SD Card не найдена");
+    SD_MMC.end();
+   // return;
+  }
+}
+
+void takeSavePhoto(String path){
+  // Сделать снимок с помощью камеры
+  camera_fb_t  * fb = esp_camera_fb_get();  
+  
+  if(!fb) {
+    Serial.println("Сбой захвата камеры");
+    return;
+  }
+
+  // Запись фото на SD card
+  fs::FS &fs = SD_MMC; 
+  File file = fs.open(path.c_str(), FILE_WRITE);
+  if(!file){
+    Serial.println("Не удалось открыть файл для записи");
+    SD_MMC.end();
+  } 
+  else {
+    file.write(fb->buf, fb->len); // payload (image), payload length
+    Serial.printf("Файл сохранён по адресу: %s\n", path.c_str());
+  }
+  file.close(); 
+  esp_camera_fb_return(fb);
+  SD_MMC.end(); 
+}
+

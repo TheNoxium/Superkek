@@ -5,11 +5,11 @@
 #include "SD_MMC.h" 
 File dataFile;
 String buffer;
-
+String path = "/test.txt";
 
 //Read a file in SD card
 void readFile(fs::FS &fs, const char * path){
-    Serial.printf("Reading file: %s\n", path);
+    Serial.printf(path);
 
     File file = fs.open(path);
     
@@ -42,7 +42,7 @@ void setup() {
 }
 
 void loop() {
-       Serial.println("SDcard Testing....");
+       //Serial.println("SDcard Testing....");
 
    if(!SD_MMC.begin()){
         Serial.println("Card Mount Failed");
@@ -51,10 +51,11 @@ void loop() {
     }
    // uint8_t cardType = SD_MMC.cardType();
 
-    ''
+    
 
 
     readFile(SD_MMC, "/test.txt");
+    
  
   // put your main code here, to run repeatedly:
 
