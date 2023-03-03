@@ -31,8 +31,6 @@
 #define HREF_GPIO_NUM     23
 #define PCLK_GPIO_NUM     22
 
-String buffer;
-
 unsigned long last_time;
 
 camera_config_t config;                 // Конфигурациия камеры
@@ -68,30 +66,6 @@ void setup() {
   timeClient.begin();               // Инициализация NTPClient
 }
 
-void readFile(fs::FS &fs, const char * path){
-    Serial.printf("Reading file: %s\n", path);
-
-    File file = fs.open(path);
-    
-    if (file) {
-        // считываем все байты из файла и выводим их в COM-порт
-       while (file.available()) //Читаем содержимое файла
-  {
-    buffer = file.readStringUntil('\n');//Считываем с карты весь дотекст в строку до символа окончания.
-    Serial.println(buffer); // для отладки отправляем по UART все что прочитали с карты.
-  }
-    file.close();
-    SD_MMC.end();
-   } else {
-        // выводим ошибку если не удалось открыть файл
-        Serial.println("error opening test.txt");
-         SD_MMC.end();
-    }
-        
-        delay(5000);
-    
-}
-
 void loop() {
 
   if (millis() - last_time > 10000)
@@ -109,19 +83,16 @@ void loop() {
  Date = String(monthDay)+"."+String(currentMonth)+"."+String(currentYear)+"."+String(currentHour)+"."+String(currentMinute)+"."+String(currentSecond);
   
   //Название и путь для сохранения фото на SD Card
-  String path1 = "/" + String(Date) +".jpg";  
+  String path = "/" + String(Date) +".jpg";  
 
   //Получить и сохранить фото
 
   Serial.print("Проверка MicroSD card модуля. ");
   initMicroSDCard();
 
-//readFile(SD_MMC, "/test.txt");
-delay(1000);
-   
-   
-  takeSavePhoto(path1);
-  //delay(Pausa);
+
+  takeSavePhoto(path);
+ // delay(Pausa);
  last_time = millis();
  }                                    // Пауза между фотками 
 }
@@ -165,23 +136,25 @@ void configInitCamera(){
     Serial.printf("Ошибка инициализации камеры 0x%x", err);
     return;
   }
+
+
 }
 
 void initMicroSDCard(){
   if(!SD_MMC.begin()){
     Serial.println("SD Card не работает");
-    
-    return;
+    SD_MMC.end();
+   // return;
   }
   uint8_t cardType = SD_MMC.cardType();
   if(cardType == CARD_NONE){
     Serial.println("SD Card не найдена");
-   
-    return;
+    SD_MMC.end();
+   // return;
   }
 }
 
-void takeSavePhoto(String path1){
+void takeSavePhoto(String path){
   // Сделать снимок с помощью камеры
   camera_fb_t  * fb = esp_camera_fb_get();  
   
@@ -192,20 +165,15 @@ void takeSavePhoto(String path1){
 
   // Запись фото на SD card
   fs::FS &fs = SD_MMC; 
-  File file = fs.open(path1.c_str(), FILE_WRITE);
+  File file = fs.open(path.c_str(), FILE_WRITE);
   if(!file){
     Serial.println("Не удалось открыть файл для записи");
     SD_MMC.end();
   } 
   else {
     file.write(fb->buf, fb->len); // payload (image), payload length
-    Serial.printf("Файл сохранён по адресу: %s\n", path1.c_str());
-    SD_MMC.end(); 
-  }
-  file.close(); 
-  Serial.printf("Reading file: %s\n", path);
-
-    File file = fs.open(path);
+    Serial.printf("Файл сохранён по адресу: %s\n", path.c_str());
+        File file = fs.open("/test.txt");
     
     if (file) {
         // считываем все байты из файла и выводим их в COM-порт
@@ -221,8 +189,8 @@ void takeSavePhoto(String path1){
         Serial.println("error opening test.txt");
          SD_MMC.end();
     }
-        
-        delay(5000);
+  }
+  file.close(); 
   esp_camera_fb_return(fb);
   SD_MMC.end(); 
 }
