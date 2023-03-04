@@ -2,7 +2,7 @@
 // https://github.com/v12345vtm/CameraWebserver2SD/blob/master/CameraWebserver2SD/CameraWebserver2SD.ino
 
 #include "FS.h"
-
+#include "SD.h"
 #include "SPI.h"
 File dataFile;
 
@@ -22,15 +22,15 @@ void loop() {
 }
 
 void initMicroSDCard(){
-  if(!SD_MMC.begin()){
+  if(!SD.begin()){
     Serial.println("SD Card не работает");
-    SD_MMC.end();
+    SD.end();
    // return;
   }
-  uint8_t cardType = SD_MMC.cardType();
+  uint8_t cardType = SD.cardType();
   if(cardType == CARD_NONE){
     Serial.println("SD Card не найдена");
-    SD_MMC.end();
+    SD.end();
    // return;
   }
 }
@@ -39,7 +39,7 @@ void Demon(String path2){
   
 
   // Запись  на SD card
-  fs::FS &fs = SD_MMC;
+  fs::FS &fs = SD;
 
    File file = fs.open(path2);
 
@@ -54,11 +54,11 @@ void Demon(String path2){
    } else {
         // выводим ошибку если не удалось открыть файл
         Serial.println("error opening test.txt");
-         SD_MMC.end();
+         SD.end();
     }
 
   file.close(); 
-  SD_MMC.end(); 
+  SD.end(); 
 
 }
 
