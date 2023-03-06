@@ -1,11 +1,11 @@
 #include "Keypad.h"  //библиотека клавиатуры
-#include <EEPROMex.h>
+#include <EEPROM.h>
 
-#define LED1_PIN    D0   // 7  green
-#define LED2_PIN    D10  // 10 blue
-#define LED3_PIN    D1   // 8  red 
+#define LED1_PIN    2   // 7  green
+#define LED2_PIN    4  // 10 blue
+//#define LED3_PIN    D1   // 8  red 
 //#define MOTO_PIN    D2
-#define TONE_PIN    D2
+#define TONE_PIN    16
 
 //int led =  D0;    //зеленый
 //int led2 = D1;    //красны
@@ -36,12 +36,12 @@ char keys[4][3] = {
   {'7', '8', '9'},
   {'*', '0', '#'}
 };
-byte rowPins[] = {D3, D4, D5, D6};     // Подключены строки (4 пина)
-byte colPins[] = {D7, D8, D9};          // подключены столбцы (4 пина)
+byte rowPins[] = {33, 25, 26, 27};     // Подключены строки (4 пина)
+byte colPins[] = {14, 12, 13};          // подключены столбцы (4 пина)
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, 4, 3 ); //иниициализировать клавиатуру
 
 void setup() {
-  pinMode(LED3_PIN  , OUTPUT);
+ // pinMode(LED3_PIN  , OUTPUT);
   pinMode(LED2_PIN  , OUTPUT);
   pinMode(LED1_PIN  , OUTPUT);
   pinMode(TONE_PIN  , OUTPUT);
@@ -58,18 +58,18 @@ void setup() {
     key = keypad.getKey();             // обработка нажатия
     if (key != NO_KEY) {               // если была нажата
        digitalWrite(LED1_PIN ,HIGH);
-       tone (TONE_PIN,500);
+      // tone (TONE_PIN,500);
        delay(100);
-       noTone(TONE_PIN);             // веключается зеленый светодиод
+      // noTone(TONE_PIN);             // веключается зеленый светодиод
       pass_timer = millis();           // сбросить таймер
       if (key == '*') {                // если нажата *
         int_pass = str_pass.toInt();   // перевести в число
         EEPROM.writeLong(0, int_pass); // записать в память
         pass_lenght = str_pass.length();
         Serial.println("записал пароль");
-        digitalWrite(LED3_PIN ,HIGH);   // веключается красный светодиод
+     //   digitalWrite(LED3_PIN ,HIGH);   // веключается красный светодиод
                for ( ;count < count_max; ++count) {
-      tone(TONE_PIN, tone_frequency[count], tone_duration[count]);
+      //tone(TONE_PIN, tone_frequency[count], tone_duration[count]);
       delay(delay_duration[count]);  
     }
     count = 0;  
@@ -77,7 +77,7 @@ void setup() {
 
     delay(1000);
        digitalWrite(LED2_PIN ,LOW);
-       digitalWrite(LED3_PIN ,LOW); 
+      // digitalWrite(LED3_PIN ,LOW); 
        digitalWrite(LED1_PIN ,LOW);
         
         
@@ -96,7 +96,7 @@ void setup() {
     if (millis() - pass_timer > 10000) {     // если сработал таймер
       str_pass = String(int_pass, DEC);      // сбросить ввод и выйти из цикла
       digitalWrite(LED2_PIN ,LOW);
-      digitalWrite(LED3_PIN ,LOW); 
+    //  digitalWrite(LED3_PIN ,LOW); 
       digitalWrite(LED1_PIN ,LOW);
       break;
     }
@@ -104,22 +104,22 @@ void setup() {
 }
 
 void pass_check() {
-   digitalWrite(LED3_PIN ,HIGH);
+ //  digitalWrite(LED3_PIN ,HIGH);
    
   key = keypad.getKey();             // обработка нажатия
   if (key == '*') {                  // если была нажата *
     pass_timer = millis();           // сбросить таймер
     j = 0;
     digitalWrite(LED2_PIN ,HIGH);
-      tone (TONE_PIN,700);
+ //     tone (TONE_PIN,700);
       delay(100);
-      noTone(TONE_PIN);
+   //   noTone(TONE_PIN);
     while (1) {                      // бесконечный цикл ввода пароля
       key = keypad.getKey();             // обработка нажатия
       if (key != NO_KEY) {
-         tone (TONE_PIN,500);
+       //  tone (TONE_PIN,500);
          delay(100);
-         noTone(TONE_PIN);                  // если была нажата
+        // noTone(TONE_PIN);                  // если была нажата
         pass_timer = millis();           // сбросить таймер
         if (key == str_pass[j]) {        // если новая введённая цифра совпала с цифрой пароля
           j++; 
@@ -131,44 +131,44 @@ void pass_check() {
         }
         if (j == pass_lenght) {          // если были введены все правильные цифры пароля
           Serial.println("Success");
-           digitalWrite(LED3_PIN ,LOW);
+        //   digitalWrite(LED3_PIN ,LOW);
            digitalWrite(LED2_PIN ,LOW);
            digitalWrite(LED1_PIN ,HIGH);
      
             for ( ;count < count_max; ++count) 
             {
-            tone(TONE_PIN, tone_frequency[count], tone_duration[count]);
+        //    tone(TONE_PIN, tone_frequency[count], tone_duration[count]);
             delay(delay_duration[count]);  
             }
             count = 0;
             delay(3000);
                 digitalWrite(LED2_PIN ,LOW);
-                digitalWrite(LED3_PIN ,LOW); 
+            //    digitalWrite(LED3_PIN ,LOW); 
                 digitalWrite(LED1_PIN ,LOW);
           
           break;                         // выйти из цикла
         }
         if (key == '#') { 
           digitalWrite(LED2_PIN ,LOW);
-          digitalWrite(LED3_PIN ,LOW); 
+        //  digitalWrite(LED3_PIN ,LOW); 
           digitalWrite(LED1_PIN ,LOW); 
-           tone (TONE_PIN,200); 
+        //   tone (TONE_PIN,200); 
            delay(200);
-           tone (TONE_PIN,100); 
+    //       tone (TONE_PIN,100); 
            delay(200);
-           noTone(TONE_PIN);        // если нажата #
+       //    noTone(TONE_PIN);        // если нажата #
           break;                         // выйти из цикла
         }
       }
       if (millis() - pass_timer > 10000) {
         digitalWrite(LED2_PIN ,LOW);
-        digitalWrite(LED3_PIN ,LOW); 
+      //  digitalWrite(LED3_PIN ,LOW); 
         digitalWrite(LED1_PIN ,LOW);
-        tone (TONE_PIN,200); 
+    //    tone (TONE_PIN,200); 
         delay(200);
-        tone (TONE_PIN,100); 
+      //  tone (TONE_PIN,100); 
         delay(200);
-        noTone(TONE_PIN);// если сработал таймер
+  //      noTone(TONE_PIN);// если сработал таймер
         break;                                // выйти из цикла
       }
     }
