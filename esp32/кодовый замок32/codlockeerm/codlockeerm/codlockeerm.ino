@@ -22,7 +22,7 @@ Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, 4, 3 ); //инииц
 
 void setup() {
   Serial.begin(9600);
-  EEPROM.begin(4);
+  EEPROM.begin(100);
 
    pinMode(LEDBLUE_PIN  , OUTPUT);
    pinMode(LEDGREAN_PIN  , OUTPUT);
