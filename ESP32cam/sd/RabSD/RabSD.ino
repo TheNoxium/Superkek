@@ -2,7 +2,7 @@
 // https://github.com/v12345vtm/CameraWebserver2SD/blob/master/CameraWebserver2SD/CameraWebserver2SD.ino
 
 #include "FS.h"
-
+#include "SD_MMC"
 #include "SPI.h"
 File dataFile;
 

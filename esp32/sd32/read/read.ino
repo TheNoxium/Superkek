@@ -1,31 +1,64 @@
-#include <SPI.h>
-#include <SD.h>
+// This post referred to this git. I just trimmed cam and wifi part.
+// https://github.com/v12345vtm/CameraWebserver2SD/blob/master/CameraWebserver2SD/CameraWebserver2SD.ino
+
+#include "FS.h"
+#include "SD.h"
+#include "SPI.h"
 File dataFile;
+
+String path2 = "/test.txt";
 String buffer;
 
-const int chipSelect = 18;
 
-void setup() {
-    Serial.begin(9600);
+void setup() {  
+  Serial.begin(115200);
+  
+}
 
-   if( !SD.begin( chipSelect )){
-       Serial.println("initialization failed!");
-       return;
-    }
-    // открываем файл для чтения
-    File dataFile = SD.open("test.txt");
-    if (dataFile) {
+void loop() {
+  initMicroSDCard();
+  Demon(path2); 
+  delay(1000);
+}
+
+void initMicroSDCard(){
+  if(!SD.begin()){
+    Serial.println("SD Card не работает");
+    SD.end();
+   // return;
+  }
+  uint8_t cardType = SD.cardType();
+  if(cardType == CARD_NONE){
+    Serial.println("SD Card не найдена");
+    SD.end();
+   // return;
+  }
+}
+
+void Demon(String path2){
+  
+
+  // Запись  на SD card
+  fs::FS &fs = SD;
+
+   File file = fs.open(path2);
+
+  if (file) {
         // считываем все байты из файла и выводим их в COM-порт
-       while (dataFile.available()) //Читаем содержимое файла
+       while (file.available()) //Читаем содержимое файла
   {
-    buffer = dataFile.readStringUntil('\n');//Считываем с карты весь дотекст в строку до символа окончания.
+    buffer = file.readStringUntil('\n');//Считываем с карты весь дотекст в строку до символа окончания.
     Serial.println(buffer); // для отладки отправляем по UART все что прочитали с карты.
   }
-  dataFile.close(); //закроем файл
-    } else {
+  
+   } else {
         // выводим ошибку если не удалось открыть файл
         Serial.println("error opening test.txt");
+         SD.end();
     }
+
+  file.close(); 
+  SD.end(); 
+
 }
-void loop() {
-}
+
