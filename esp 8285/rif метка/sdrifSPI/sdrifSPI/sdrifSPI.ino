@@ -27,7 +27,7 @@ void loop() {
 
     Serial.begin(9600);
     
-      //Serial.println("включаюсь");
+     // Serial.println("включаюсь");
       
         if( SD.begin( chipSelect ))
         {

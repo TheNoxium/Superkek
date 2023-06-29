@@ -10,8 +10,8 @@
 
 
 #define LEDBLUE_PIN 17  // 4 blue 16
-#define LEDGREAN_PIN 4  //16 grea
-#define LEDRED_PIN 16   //17 red
+#define LEDGREAN_PIN 16  //16 grea
+#define LEDRED_PIN 4   //17 red
 
 
 const char* ssid = "Cats_Ass";

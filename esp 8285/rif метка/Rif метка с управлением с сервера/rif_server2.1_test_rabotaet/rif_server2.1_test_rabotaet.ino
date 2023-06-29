@@ -10,8 +10,8 @@ const char* host = "192.168.1.94";
 int buff=0;
 
 
-int led =  D1;    //зеленый
-int led2 = D0;    //красны
+int led =  D0;    //зеленый
+int led2 = D1;    //красны
 int led3 = D2;    //синий
 int tonepin = D8; //динамик
 int rad = 15;
@@ -19,6 +19,7 @@ int rad = 15;
 
 constexpr uint8_t RST_PIN = D3;     
 constexpr uint8_t SS_PIN = D4;    
+
 MFRC522 rfid(SS_PIN, RST_PIN); 
 MFRC522::MIFARE_Key key;
 String tag;
@@ -136,7 +137,7 @@ void loop()
       tag += rfid.uid.uidByte[i];
     }
     Serial.println(tag);
-    if (tag == "24323223227") {
+    if (tag == "5113184173") {
 
       if ( buff==0)
         {
@@ -208,7 +209,7 @@ void loop()
         }
       
   
-    } else if (tag == "1606717532") {
+    } else if (tag == "2402816514") {
                 if ( buff==0)
         {
       Serial.println("Access Granted!");

@@ -1,9 +1,9 @@
 #include "Keypad.h"  //библиотека клавиатуры
 #include <EEPROM.h>
 
-#define LEDBLUE_PIN    17 // 4 blue 16 
-#define LEDGREAN_PIN    4 //16 grea
-#define LEDRED_PIN     16 //17 red
+#define LEDBLUE_PIN    4 // 4 blue 
+#define LEDGREAN_PIN   16 //16 grea
+#define LEDRED_PIN     17 //17 red
 
 unsigned long pass_timer;
 char key;

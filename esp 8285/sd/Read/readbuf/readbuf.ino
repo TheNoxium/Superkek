@@ -7,8 +7,12 @@ const int chipSelect = D8;
 
 void setup() {
     Serial.begin(9600);
+    }
 
-   if( !SD.begin( chipSelect )){
+ 
+void loop() {
+
+    if( !SD.begin( chipSelect )){
        Serial.println("initialization failed!");
        return;
     }
@@ -27,8 +31,8 @@ void setup() {
         // выводим ошибку если не удалось открыть файл
         Serial.println("error opening test.txt");
     }
-}
-void loop() {
+
+
     if (buffer == "PISKA")
   {Serial.println("пошел нахуй");
     // В этом блоке список команд, выполняющихся, если условие истино или имеет значение, отличное от 0

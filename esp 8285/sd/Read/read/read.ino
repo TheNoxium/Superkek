@@ -4,6 +4,7 @@ File dataFile;
 String buffer;
 
 const int chipSelect = D8;
+//d5-clk d6 - miso d7 - mosi d8 - cs
 
 void setup() {
     Serial.begin(9600);
