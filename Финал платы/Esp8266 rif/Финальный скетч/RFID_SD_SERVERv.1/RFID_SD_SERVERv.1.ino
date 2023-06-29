@@ -11,6 +11,8 @@ String buffer;
 
 String demon = "PENIS";
 
+String namedemon = "test.txt";
+
 int chipSelect = D8;
 
 const char* ssid = "Cats_Ass";
@@ -69,13 +71,13 @@ void setup() {
   Serial.println("Запуск Wi-Fi модуля");
 
 
-  Serial.printf("Подулючение к Wi-Fi сети %s ", ssid);
+  Serial.printf("Подключение к Wi-Fi сети %s ", ssid);
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
   }
-  Serial.printf(" Модуль успешно подключен к Wi-Fi сети", ssid);
+  Serial.println(" Модуль успешно подключен к Wi-Fi сети. ");
 }
 
 
@@ -146,11 +148,10 @@ void Demon() {
   Serial.println("Проверяю слот SD");
 
   if (SD.begin(chipSelect)) {
-    Serial.print(SD.begin(chipSelect));
-    if (SD.open("test.txt")) {
+
+    if (SD.open(namedemon)) {
       Serial.println("Апаратный код успешно распознан рааспознан");
-      Serial.println(SD.open("test.txt"));
-      File dataFile = SD.open("test.txt");
+      File dataFile = SD.open(namedemon);
       buffer = dataFile.readStringUntil('\n');
       Serial.println(buffer);
       if (buffer == demon) {
@@ -165,8 +166,6 @@ void Demon() {
     SD.end(chipSelect);
   } else {
     SD.end(chipSelect);
-
-    Serial.print(SD.begin(chipSelect));
     Serial.println("SD карты не найдено");
   }
 }
