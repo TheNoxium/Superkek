@@ -86,9 +86,9 @@ void loop() {
   if (buffer == demon) {
     Demon();
     buff1();
-    //controlop1();
-    //delay(10000);
-    //controlcl1();
+    controlop1();
+    delay(10000);
+    controlcl1();
 
 
   } else {
@@ -186,22 +186,23 @@ void Demon() {
         buff = 1;
       } else {
         Serial.println("Апаратный код не рааспознан");
+        buffer = "LOX";
       }
     } else {
       Serial.println("Апаратный код не распознан");
+      buffer = "LOX";
     }
 
     SD.end(chipSelect);
   } else {
     SD.end(chipSelect);
     Serial.println("SD карты не найдено");
+    buffer = "LOX";
   }
 }
 
 
 void buff1() {
-
-
 
   digitalWrite(LEDRED_PIN, LOW);
   digitalWrite(LEDBLUE_PIN, LOW);
@@ -210,10 +211,43 @@ void buff1() {
 
 void buff2() {
 
-
-
-
   digitalWrite(LEDGREAN_PIN, LOW);
   digitalWrite(LEDRED_PIN, HIGH);
   digitalWrite(LEDBLUE_PIN, LOW);
+}
+
+void controlcl1() {
+
+  WiFiClient client;
+
+  Serial.printf("\n[Connecting to %s ... ", host);
+  client.connect(host, 80);
+
+  Serial.println("connected к закрыть]");
+  client.print("GET /controlcl1.php?");
+  client.println(" HTTP/1.1");
+  client.print("Host: ");
+  client.println(host);
+  client.println("Connection: close");
+  client.println();
+  client.println();
+  client.stop();
+  client.flush();
+}
+
+void controlop1() {
+  WiFiClient client;
+  Serial.printf("\n[Connecting to %s ... ", host);
+  client.connect(host, 80);
+
+  Serial.println("connected к открыть]");
+  client.print("GET /controlop1.php?");
+  client.println(" HTTP/1.1");
+  client.print("Host: ");
+  client.println(host);
+  client.println("Connection: close");
+  client.println();
+  client.println();
+  client.stop();
+  client.flush();
 }
