@@ -23,9 +23,9 @@ const char* host = "192.168.1.94";
 int buff;
 
 
-int led = D0;   //зеленый
-int led2 = D1;  //красны
-int led3 = D2;  //синий
+int LEDGREAN_PIN = D0;  //зеленый
+int LEDRED_PIN = D1;    //красны
+int LEDBLUE_PIN = D2;   //синий
 
 
 
@@ -50,8 +50,8 @@ void setup() {
   //SPI.begin();  // Init SPI bus
   //rfid.PCD_Init();
 
-  pinMode(led, OUTPUT);
-  pinMode(led2, OUTPUT);
+  pinMode(LEDGREAN_PIN, OUTPUT);
+  pinMode(LEDRED_PIN, OUTPUT);
 
 
   // delay(1000);
@@ -83,14 +83,40 @@ void setup() {
 
 void loop() {
 
-  if (millis() - pass_timerwifi > 1000) {
-    pass_timerwifi = millis();
-    //wificonnectdata();
+  if (buffer == demon) {
     Demon();
-    //Serial.println("buff");
-    //Serial.print(buff);
+    buff1();
+    //controlop1();
+    //delay(10000);
+    //controlcl1();
+
+
+  } else {
+
+
+    if (millis() - pass_timerwifi > 10000) {
+      pass_timerwifi = millis();
+      wificonnectdata();
+      Demon();
+      Serial.println(buff);
+      Serial.print("значение");
+    }
+
+    if (buff == 0) {
+      //Serial.println("Замок закрыт");
+      buff2();
+
+      //pass_check();
+
+    } else {
+      //Serial.println("Замок открыт");
+      buff1();
+      //delay(10000);
+    }
   }
 }
+
+
 
 void wificonnectdata() {
   //buff = 2;
@@ -139,7 +165,6 @@ void wificonnectdata() {
     client.connect(host, 80);
   }
   Serial.println("Остановка подключения");
-  Serial.println(buff);
 }
 
 
@@ -156,11 +181,14 @@ void Demon() {
       Serial.println(buffer);
       if (buffer == demon) {
         Serial.println("Активация апаратного кода");
+        Serial.print("Апаратный код:");
+        Serial.println(demon);
+        buff = 1;
       } else {
         Serial.println("Апаратный код не рааспознан");
       }
     } else {
-      Serial.println("Апаратный код не распознан рааспознан");
+      Serial.println("Апаратный код не распознан");
     }
 
     SD.end(chipSelect);
@@ -168,4 +196,24 @@ void Demon() {
     SD.end(chipSelect);
     Serial.println("SD карты не найдено");
   }
+}
+
+
+void buff1() {
+
+
+
+  digitalWrite(LEDRED_PIN, LOW);
+  digitalWrite(LEDBLUE_PIN, LOW);
+  digitalWrite(LEDGREAN_PIN, HIGH);
+}
+
+void buff2() {
+
+
+
+
+  digitalWrite(LEDGREAN_PIN, LOW);
+  digitalWrite(LEDRED_PIN, HIGH);
+  digitalWrite(LEDBLUE_PIN, LOW);
 }
