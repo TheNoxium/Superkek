@@ -33,11 +33,13 @@ int LEDBLUE_PIN = D2;   //синий
 constexpr uint8_t RST_PIN = D3;
 constexpr uint8_t SS_PIN = D4;
 
-MFRC522 rfid(SS_PIN, RST_PIN);
+MFRC522 rfid(SS_PIN, RST_PIN);  // Instance of the class
 MFRC522::MIFARE_Key key;
 String tag;
 
 unsigned long pass_timerwifi;
+
+unsigned long pass_timerrfid;
 
 char c;
 
@@ -47,8 +49,7 @@ void setup() {
   Serial.begin(115200);
 
 
-  //SPI.begin();  // Init SPI bus
-  //rfid.PCD_Init();
+
 
   pinMode(LEDGREAN_PIN, OUTPUT);
   pinMode(LEDRED_PIN, OUTPUT);
@@ -94,7 +95,7 @@ void loop() {
   } else {
 
 
-    if (millis() - pass_timerwifi > 10000) {
+    if (millis() - pass_timerwifi > 20) {
       pass_timerwifi = millis();
       wificonnectdata();
       Demon();
@@ -106,11 +107,12 @@ void loop() {
       //Serial.println("Замок закрыт");
       buff2();
 
-      //pass_check();
+      rfidlock();
 
     } else {
       //Serial.println("Замок открыт");
       buff1();
+
       //delay(10000);
     }
   }
@@ -152,6 +154,7 @@ void wificonnectdata() {
       }
       if (c == '0') {
         buff = 0;
+        rfidlock();
       }
     }
     client.stop();
@@ -163,6 +166,7 @@ void wificonnectdata() {
     Serial.println("Ошибка подключения");
     delay(1000);
     client.connect(host, 80);
+    buff = 0;
   }
   Serial.println("Остановка подключения");
 }
@@ -184,6 +188,7 @@ void Demon() {
         Serial.print("Апаратный код:");
         Serial.println(demon);
         buff = 1;
+
       } else {
         Serial.println("Апаратный код не рааспознан");
         buffer = "LOX";
@@ -250,4 +255,47 @@ void controlop1() {
   client.println();
   client.stop();
   client.flush();
+}
+
+void rfidlock() {
+
+  SPI.begin();  
+  rfid.PCD_Init();
+
+  if (!rfid.PICC_IsNewCardPresent())
+    return;
+  if (rfid.PICC_ReadCardSerial()) {
+    for (byte i = 0; i < 4; i++) {
+      tag += rfid.uid.uidByte[i];
+    }
+    Serial.println(tag);
+    if (tag == "5113184173") {
+      Serial.println("Ключ верный, доступ открыт.");
+
+      buff1();
+      controlop1();
+      delay(5000);
+      buff2();
+      controlcl1();
+    }
+
+  } else if (tag == "1606717532") {
+    Serial.println("Ключ верный, доступ открыт.");
+
+    buff1();
+    controlop1();
+    if (millis() - pass_timerrfid > 10000) {
+      pass_timerrfid = millis();
+      buff2();
+      controlcl1();
+    }
+
+
+
+  } else {
+    Serial.println("Ключ не верен. В доступе октазано.");
+  }
+  tag = "";
+  rfid.PICC_HaltA();
+  rfid.PCD_StopCrypto1();
 }

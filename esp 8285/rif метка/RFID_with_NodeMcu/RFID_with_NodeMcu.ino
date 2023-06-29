@@ -13,7 +13,7 @@ String tag;
 
 void setup() {
 
-  Serial.begin(9600);
+  Serial.begin(115200);
    Serial.println("здаррова");
   SPI.begin(); // Init SPI bus
   rfid.PCD_Init(); // Init MFRC522
