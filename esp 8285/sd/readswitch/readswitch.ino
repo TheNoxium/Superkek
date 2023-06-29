@@ -3,7 +3,7 @@
 File dataFile;
 String buffer;
 
-const int chipSelect = D8;
+int chipSelect = D8;
 
 void setup() {
     
@@ -11,7 +11,7 @@ void setup() {
 }
 void loop() {
 
-    Serial.begin(9600);
+    Serial.begin(115200);
     
       //Serial.println("включаюсь");
       
