@@ -99,8 +99,8 @@ void loop() {
       pass_timerwifi = millis();
       wificonnectdata();
       Demon();
-      Serial.println(buff);
-      Serial.print("значение");
+      //Serial.println(buff);
+      // Serial.print("значение");
     }
 
     if (buff == 0) {
@@ -121,51 +121,40 @@ void loop() {
 
 
 void wificonnectdata() {
-  //buff = 2;
   Serial.println("Передача состояние веб контроллера ");
-
   WiFiClient client;
 
-  Serial.printf("\n[Подключение к хосту %s ... ", host);
+  Serial.printf("\n[Connecting to %s ... ", host);
   if (client.connect(host, 80)) {
-    Serial.println("Потключено]");
-    client.print("GET /data.php?");
-    client.println(" HTTP/1.1");
-    client.print("Host: ");
-    client.println(host);
-    client.println("Connection: close");
-    client.println();
-    //client.println();
+    Serial.println("connected]");
 
+    Serial.println("[Sending a request]");
+    client.print(String("GET /data.php?") + " HTTP/1.1\r\n" + "Host: " + host + "\r\n" + "Connection: close\r\n" + "\r\n");
 
-    delay(50);
+    Serial.println("[Response:]");
 
-    while (client.available()) {
-
-
-      String line = client.readStringUntil('\n');
-      Serial.print("Информация полученная с сервера: ");
-      Serial.println(line);
-
-      char c = client.read();
-
-      if (c == '1') {
-        buff = 1;
-      }
-      if (c == '0') {
-        buff = 0;
-        rfidlock();
+    while (client.connected()) {
+      if (client.available()) {
+        String line = client.readStringUntil('\n');
+        Serial.println(line);
+        char c = client.read();
+        //Serial.println(c);
+        if (c == '1') {
+          buff = 1;
+          Serial.println("Открыто");
+        }
+        if (c == '0') {
+          buff = 0;
+          Serial.println("Закрыто");
+          rfidlock();
+        }
       }
     }
     client.stop();
-    client.flush();
-    delay(500);
+    Serial.println("\n[Disconnected]");
   } else {
-
+    Serial.println("connection failed!]");
     client.stop();
-    Serial.println("Ошибка подключения");
-    delay(1000);
-    client.connect(host, 80);
     buff = 0;
   }
   Serial.println("Остановка подключения");
@@ -259,7 +248,7 @@ void controlop1() {
 
 void rfidlock() {
 
-  SPI.begin();  
+  SPI.begin();
   rfid.PCD_Init();
 
   if (!rfid.PICC_IsNewCardPresent())
