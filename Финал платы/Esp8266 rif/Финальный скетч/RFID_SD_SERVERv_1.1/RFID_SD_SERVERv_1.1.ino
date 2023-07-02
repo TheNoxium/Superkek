@@ -9,7 +9,7 @@
 File dataFile;
 String buffer;
 
-String demon = "PENIS";
+String demon = "1488";
 
 String namedemon = "test.txt";
 
@@ -62,8 +62,11 @@ void setup() {
   delay(1000);
 
   Serial.println("Arasaka Corporation");
+  delay(1000);
   Serial.println("Включение модуля RFID RC522");
+  delay(1000);
   Serial.println("Включение модуля Micro SD");
+  delay(1000);
   Serial.println("Загрузка прошивки RFID_SD_SERVER_v.1");
   Serial.println();
 
@@ -121,7 +124,7 @@ void loop() {
 
 
 void wificonnectdata() {
-  Serial.println("Передача состояние веб контроллера ");
+  Serial.println("Передача состояние с WEB сервера ");
   WiFiClient client;
 
   Serial.printf("\n[Connecting to %s ... ", host);
@@ -166,12 +169,12 @@ void Demon() {
   Serial.println("Проверяю слот SD");
 
   if (SD.begin(chipSelect)) {
-
+   Serial.println("SD карта найдена");
     if (SD.open(namedemon)) {
-      Serial.println("Апаратный код успешно распознан рааспознан");
+      Serial.println("Имя файла апаратного кода успешно рааспознано");
       File dataFile = SD.open(namedemon);
       buffer = dataFile.readStringUntil('\n');
-      //Serial.println(buffer);
+      Serial.println(buffer);
       if (buffer == demon) {
         Serial.println("Активация апаратного кода");
         Serial.print("Апаратный код:");
@@ -183,14 +186,14 @@ void Demon() {
         buffer = "LOX";
       }
     } else {
-      Serial.println("Апаратный код не распознан");
+      Serial.println("Имя файла апаратного кода не рааспознано");
       buffer = "LOX";
     }
 
     SD.end(chipSelect);
   } else {
     SD.end(chipSelect);
-    Serial.println("SD карты не найдено");
+    Serial.println("SD карта не найдена");
     buffer = "LOX";
   }
 }
