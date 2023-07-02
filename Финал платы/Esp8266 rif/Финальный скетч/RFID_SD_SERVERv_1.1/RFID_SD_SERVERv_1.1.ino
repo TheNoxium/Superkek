@@ -44,7 +44,7 @@ unsigned long pass_timerrfid;
 char c;
 
 void setup() {
-  // delay(1000);
+  delay(1000);
 
   Serial.begin(115200);
 
@@ -55,11 +55,11 @@ void setup() {
   pinMode(LEDRED_PIN, OUTPUT);
 
 
-  // delay(1000);
+  delay(1000);
 
   Serial.println("Включение");
 
-  // delay(1000);
+  delay(1000);
 
   Serial.println("Arasaka Corporation");
   Serial.println("Включение модуля RFID RC522");
@@ -67,7 +67,7 @@ void setup() {
   Serial.println("Загрузка прошивки RFID_SD_SERVER_v.1");
   Serial.println();
 
-  // delay(1000);
+  delay(1000);
 
   Serial.println("Запуск Wi-Fi модуля");
 
@@ -171,7 +171,7 @@ void Demon() {
       Serial.println("Апаратный код успешно распознан рааспознан");
       File dataFile = SD.open(namedemon);
       buffer = dataFile.readStringUntil('\n');
-      Serial.println(buffer);
+      //Serial.println(buffer);
       if (buffer == demon) {
         Serial.println("Активация апаратного кода");
         Serial.print("Апаратный код:");
