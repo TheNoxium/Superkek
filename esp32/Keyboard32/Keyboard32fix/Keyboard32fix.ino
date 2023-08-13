@@ -11,8 +11,8 @@ char keys[3][4] = {
   {'*', '7', '4', '1'},
 
 };
-byte rowPins[] = {14, 12, 27};     // Подключены строки (4 пина)
-byte colPins[] = {26, 25, 33, 32};          // подключены столбцы (4 пина)
+byte rowPins[] = { 14, 12, 27 };                                   // Подключены строки (4 пина)
+byte colPins[] = { 26, 25, 33, 32 };      
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, 3, 4 ); //иниициализировать клавиатуру
 
 

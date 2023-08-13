@@ -8,15 +8,16 @@
 #include "SPI.h"
 
 
-#define LEDBLUE_PIN    17 // 4 blue 
-#define LEDGREAN_PIN   4 //16 grea
-#define LEDRED_PIN     16 //17 red
+#define LEDBLUE_PIN 17  // 4 blue
+#define LEDGREAN_PIN 4  //16 grea
+#define LEDRED_PIN 16   //17 red
 
 
-const char* ssid = "Cats_Ass";
-const char* password = "12345678s";
+const char* ssid = "NIGHT CITY FREE WIFI";
+const char* password = "88888888";
 
-const char* host = "192.168.1.94";
+
+
 
 int buff = 0;
 
@@ -27,8 +28,10 @@ unsigned long pass_timerwifi;
 
 File dataFile;
 
-String path2 = "/test.txt";
+String path2 = "/demon.txt";
 String buffer;
+
+String demon = "arasaka";
 
 
 char key;
@@ -38,25 +41,40 @@ byte pass_lenght, j;
 unsigned long int_pass;  // 10 знаков моксимум!!
 
 char keys[3][4] = {
-  {'0', '8', '5', '2'},
-  {'#', '9', '6', '3'},
-  {'*', '7', '4', '1'},
+  { '0', '8', '5', '2' },
+  { '#', '9', '6', '3' },
+  { '*', '7', '4', '1' },
 
 };
-byte rowPins[] = {14, 12, 27};     // Подключены строки (4 пина)
-byte colPins[] = {26, 25, 33, 32};          // подключены столбцы (4 пина)
-Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, 3, 4 );   //иниициализировать клавиатуру
+byte rowPins[] = { 14, 12, 27 };                                   // Подключены строки (4 пина)
+byte colPins[] = { 26, 25, 33, 32 };                               // подключены столбцы (4 пина)
+Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, 3, 4);  //иниициализировать клавиатуру
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
 
-  Serial.printf("Connecting to %s ", ssid);
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println(" connected");
+  delay(100);
+
+  Serial.println("Включение");
+
+  delay(100);
+
+  Serial.println("Militech International Armaments");
+  delay(100);
+  Serial.println("Включение модуля CODELOCK");
+  delay(100);
+  Serial.println("Включение модуля энергонезависимой памяти");
+  delay(100);
+  Serial.println("Включение модуля Micro SD");
+  delay(100);
+  Serial.println("Загрузка прошивки CODELOCK_SD_SERVERv_1");
+  Serial.println();
+
+  delay(100);
+
+
+ 
+ 
 
 
   EEPROM.begin(4);
@@ -65,9 +83,9 @@ void setup() {
   pinMode(LEDGREAN_PIN, OUTPUT);
   pinMode(LEDRED_PIN, OUTPUT);
 
-  Serial.println("вспоминаю пароль");
+  Serial.println("Активация пароля из энергонезависимой памяти");
   int_pass = EEPROM.get(0, int_pass);  // вспоминаем пароль из памяти
-
+  Serial.print("Пароля из энергонезависимой памяти:");
   Serial.println(int_pass);
 
 
@@ -78,7 +96,15 @@ void setup() {
   digitalWrite(LEDGREAN_PIN, HIGH);
   digitalWrite(LEDRED_PIN, HIGH);
 
-  Serial.println(str_pass.length());
+  Serial.println("Активация вода нового пароля.");
+
+  Serial.println("Для активации нового пароля введите желаемый пароль.");
+
+  Serial.println("Для сохранения его в энергонезависимую памнять нажмите символ *.");
+
+  Serial.println("Если вы желаете оставить старый пароль 10 секунд.");
+
+  //Serial.println(str_pass.length());
 
   str_pass = "";  // сброс пароля (пустая строка)
 
@@ -113,7 +139,7 @@ void setup() {
         int_pass = str_pass.toInt();  // перевести в число
         EEPROM.put(0, int_pass);      // записать в память
         EEPROM.commit();
-        Serial.println("записал пароль");
+        Serial.println("Пароль записан в энергонезависимую память.");
         Serial.println(int_pass);
 
 
@@ -134,8 +160,10 @@ void setup() {
     }
     if (millis() - pass_timer > 10000) {  // если сработал таймер
       str_pass = String(int_pass, DEC);   // сбросить ввод и выйти из цикла
-      Serial.println(str_pass.length());
-      Serial.println("выхожу из ввода пароля");
+                                          //Serial.println(str_pass.length());
+      Serial.println("Пароль из энергонезависимой памяти");
+      Serial.println(int_pass);
+      Serial.println("Выход из цикла ввода пароля.");
 
       digitalWrite(LEDBLUE_PIN, LOW);
       digitalWrite(LEDGREAN_PIN, LOW);
@@ -144,16 +172,14 @@ void setup() {
       break;
     }
   }
+  delay(1000);
+  Serial.println("Активация цикла ввода пароля.");
 }
 
 void pass_check() {
 
 
-  Serial.println("жду ввода пароля");
-
-
-
-  Serial.println(str_pass);
+  // Serial.println(str_pass);
 
 
   key = keypad.getKey();  // обработка нажатия
@@ -184,11 +210,13 @@ void pass_check() {
         if (j == pass_lenght) {  // если были введены все правильные цифры пароля
 
 
-          Serial.println("открыто");
+          Serial.println("Замок открыт");
           digitalWrite(LEDBLUE_PIN, LOW);
           digitalWrite(LEDGREAN_PIN, HIGH);
-          delay(5000);
-          Serial.println("закрыто");
+         // controlop1();
+          delay(10000);
+         // controlcl1();  // время открытого замка
+          Serial.println("Замок закрыт");
           digitalWrite(LEDGREAN_PIN, LOW);
           digitalWrite(LEDRED_PIN, HIGH);
 
@@ -196,7 +224,7 @@ void pass_check() {
           break;  // выйти из цикла
         }
         if (key == '#') {
-          Serial.println("решето");  // если нажата #
+          // Serial.println("решето");  // если нажата #
 
           digitalWrite(LEDBLUE_PIN, LOW);
           digitalWrite(LEDGREAN_PIN, LOW);
@@ -218,116 +246,35 @@ void pass_check() {
 }
 
 
-void wificonnectdata() {
-
-
-  WiFiClient client;
-  // digitalWrite(LEDRED_PIN, LOW);
-  //digitalWrite(LEDBLUE_PIN, HIGH);
-  //digitalWrite(LEDGREAN_PIN, HIGH);
-
-  Serial.printf("\n[Connecting to %s ... ", host);
-  if (client.connect(host, 80)) {
-    Serial.println("connected]");
-    client.print("GET /data.php?");
-    client.println(" HTTP/1.1");
-    client.print("Host: ");
-    client.println(host);
-    client.println("Connection: close");
-    client.println();
-    client.println();
-
-
-    delay(200);
-
-    while (client.available()) {
-      String line = client.readStringUntil('\n');
-     
-      Serial.print(line);
-
-
-      char c = client.read();
-      if (c == '1') {
-        buff = 1;
-      }
-      if (c == '0') {
-        buff = 0;
-      }
-    }
-
-    client.stop();
-    client.flush();
-    delay(50);
-
-  } else {
-    client.stop();
-    client.flush();
-    Serial.println("Я обосрался ошибка подключения");
-    delay(1000);
-  }
-  //digitalWrite(LEDBLUE_PIN, LOW);
-  //digitalWrite(LEDGREAN_PIN, LOW);
-}
 
 
 void buff1() {
 
 
-  Serial.println("открыто");
+  //Serial.println("открыто");
   digitalWrite(LEDRED_PIN, LOW);
   digitalWrite(LEDBLUE_PIN, LOW);
   digitalWrite(LEDGREAN_PIN, HIGH);
 }
 
-void controlop1() {
-  WiFiClient client;
-  Serial.printf("\n[Connecting to %s ... ", host);
-  client.connect(host, 80);
 
-  Serial.println("connected к открыть]");
-  client.print("GET /controlop1.php?");
-  client.println(" HTTP/1.1");
-  client.print("Host: ");
-  client.println(host);
-  client.println("Connection: close");
-  client.println();
-  client.println();
-  client.stop();
-  client.flush();
-}
 
 void buff2() {
 
 
 
-  Serial.println("закрыто");
+  //Serial.println("закрыто");
   digitalWrite(LEDGREAN_PIN, LOW);
   digitalWrite(LEDRED_PIN, HIGH);
   digitalWrite(LEDBLUE_PIN, LOW);
 }
 
-void controlcl1() {
 
-  WiFiClient client;
-
-  Serial.printf("\n[Connecting to %s ... ", host);
-  client.connect(host, 80);
-
-  Serial.println("connected к закрыть]");
-  client.print("GET /controlcl1.php?");
-  client.println(" HTTP/1.1");
-  client.print("Host: ");
-  client.println(host);
-  client.println("Connection: close");
-  client.println();
-  client.println();
-  client.stop();
-  client.flush();
-}
 
 void initMicroSDCard() {
+  Serial.println("Проверяю слот SD");
   if (!SD.begin()) {
-    Serial.println("SD Card не работает");
+    //Serial.println("SD Card не работает");
     SD.end();
     // return;
   }
@@ -347,19 +294,31 @@ void Demon(String path2) {
 
   File file = fs.open(path2);
 
+
   if (file) {
-    // считываем все байты из файла и выводим их в COM-порт
-    while (file.available())  //Читаем содержимое файла
+    Serial.println("SD Card найдена");
+    Serial.println("Имя файла апаратного кода успешно рааспознано");  // считываем все байты из файла и выводим их в COM-порт
+    while (file.available())                                          //Читаем содержимое файла
     {
       buffer = file.readStringUntil('\n');  //Считываем с карты весь дотекст в строку до символа окончания.
-      Serial.println(buffer);               // для отладки отправляем по UART все что прочитали с карты.
-    }
 
-  } else {
+      if (buffer == demon) {
+        Serial.println("Апаратный код успешно распознан рааспознан");
+        Serial.println("Активация апаратного кода");
+        Serial.print("Апаратный код:");
+        Serial.println(demon);  // для отладки отправляем по UART все что прочитали с карты.
+      } else {
+        Serial.println("Апаратный код не рааспознан");
+      }
+    }
+  }
+
+  else {
+
     // выводим ошибку если не удалось открыть файл
-    Serial.println("error opening test.txt");
+    Serial.println("Имя файла апаратного кода не рааспознано");
     buffer = "LOX";
-    Serial.println(buffer);
+    //Serial.println(buffer);
     SD.end();
   }
 
@@ -372,25 +331,25 @@ void Demon(String path2) {
 
 void loop() {
 
-  if (buffer == "PENIS") {
-    Serial.println(buffer);
+  if (buffer == demon) {
+    //Serial.println(buffer);
     initMicroSDCard();
     Demon(path2);
     buff1();
-    controlop1();
+    //controlop1();
     delay(10000);
-    controlcl1();
+    //controlcl1();
 
   } else {
 
 
     if (millis() - pass_timerwifi > 10000) {
       pass_timerwifi = millis();
-      wificonnectdata();
+     // wificonnectdata();
       initMicroSDCard();
       Demon(path2);
-      Serial.println(buff);
-      Serial.print(" значение ");
+      //Serial.println(buff);
+      //Serial.print(" значение ");
     }
 
     if (buff == 0) {
@@ -403,4 +362,3 @@ void loop() {
     }
   }
 }
-

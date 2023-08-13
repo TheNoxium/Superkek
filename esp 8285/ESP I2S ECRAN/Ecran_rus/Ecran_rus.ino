@@ -4,9 +4,9 @@ SSD1306Wire display(0x3c, 5, 4); // SDA - IO5 (D1), SCL - IO4 (D2)
 
 void setup() {
   Serial.begin(115200);
-  display.init(); //  Инициализируем дисплей
+   display.init(); //  Инициализируем дисплей
   display.flipScreenVertically(); // Устанавливаем зеркальное отображение экрана, к примеру, удобно, если вы хотите желтую область сделать вверху
-  display.setFontTableLookupFunction(FontUtf8Rus);
+  display.setFontTableLookupFunction(FontUtf8Rus);;
 }
 
 void loop() {

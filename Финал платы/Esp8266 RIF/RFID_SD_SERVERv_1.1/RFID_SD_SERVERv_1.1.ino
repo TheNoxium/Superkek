@@ -9,16 +9,16 @@
 File dataFile;
 String buffer;
 
-String demon = "1488";
+String demon = "666";
 
-String namedemon = "test.txt";
+String namedemon = "demon.txt";
 
 int chipSelect = D8;
 
-const char* ssid = "Cats_Ass";
-const char* password = "12345678s";
+const char* ssid = "NIGHT CITY FREE WIFI";
+const char* password = "88888888";
 
-const char* host = "192.168.1.94";
+const char* host = "192.168.1.203";
 
 int buff;
 
@@ -44,7 +44,7 @@ unsigned long pass_timerrfid;
 char c;
 
 void setup() {
-  delay(1000);
+  delay(100);
 
   Serial.begin(115200);
 
@@ -55,22 +55,22 @@ void setup() {
   pinMode(LEDRED_PIN, OUTPUT);
 
 
-  delay(1000);
+  delay(100);
 
   Serial.println("Включение");
 
-  delay(1000);
+  delay(100);
 
   Serial.println("Arasaka Corporation");
-  delay(1000);
+  delay(100);
   Serial.println("Включение модуля RFID RC522");
-  delay(1000);
+  delay(100);
   Serial.println("Включение модуля Micro SD");
-  delay(1000);
+  delay(100);
   Serial.println("Загрузка прошивки RFID_SD_SERVER_v.1");
   Serial.println();
 
-  delay(1000);
+  delay(100);
 
   Serial.println("Запуск Wi-Fi модуля");
 
@@ -169,7 +169,7 @@ void Demon() {
   Serial.println("Проверяю слот SD");
 
   if (SD.begin(chipSelect)) {
-   Serial.println("SD карта найдена");
+    Serial.println("SD карта найдена");
     if (SD.open(namedemon)) {
       Serial.println("Имя файла апаратного кода успешно рааспознано");
       File dataFile = SD.open(namedemon);
@@ -261,7 +261,7 @@ void rfidlock() {
       tag += rfid.uid.uidByte[i];
     }
     Serial.println(tag);
-    if (tag == "5113184173") {
+    if (tag == "514819246") {
       Serial.println("Ключ верный, доступ открыт.");
 
       buff1();
@@ -271,23 +271,23 @@ void rfidlock() {
       controlcl1();
     }
 
-  } else if (tag == "1606717532") {
-    Serial.println("Ключ верный, доступ открыт.");
+    else if (tag == "24324615914900") {
+      Serial.println("Ключ верный, доступ открыт.");
 
-    buff1();
-    controlop1();
-    if (millis() - pass_timerrfid > 10000) {
-      pass_timerrfid = millis();
+      buff1();
+      controlop1();
+      delay(5000);
       buff2();
       controlcl1();
+
+
+
+
+    } else {
+      Serial.println("Ключ не верен. В доступе октазано.");
     }
-
-
-
-  } else {
-    Serial.println("Ключ не верен. В доступе октазано.");
+    tag = "";
+    rfid.PICC_HaltA();
+    rfid.PCD_StopCrypto1();
   }
-  tag = "";
-  rfid.PICC_HaltA();
-  rfid.PCD_StopCrypto1();
 }

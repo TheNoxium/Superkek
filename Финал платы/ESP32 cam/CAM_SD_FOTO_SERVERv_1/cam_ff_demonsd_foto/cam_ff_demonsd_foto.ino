@@ -1,4 +1,4 @@
-const char* ssid = "NIGHT CITY FREE WIFI ";
+const char* ssid = "NIGHT CITY FREE WIFI";
 const char* password = "88888888";
 
 #include <WiFi.h>
@@ -28,7 +28,7 @@ String Feedback="";
 String path2 = "/demon.txt";
 String buffer;
 
-String demon = "potato";
+String demon = "onion";
 
 
 String Command="";

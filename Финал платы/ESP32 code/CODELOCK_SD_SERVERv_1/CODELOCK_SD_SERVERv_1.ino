@@ -13,10 +13,11 @@
 #define LEDRED_PIN 16   //17 red
 
 
-const char* ssid = "Cats_Ass";
-const char* password = "12345678s";
+const char* ssid = "NIGHT CITY FREE WIFI";
+const char* password = "88888888";
 
-const char* host = "192.168.1.94";
+
+const char* host = "192.168.1.203";
 
 int buff = 0;
 
@@ -30,7 +31,7 @@ File dataFile;
 String path2 = "/demon.txt";
 String buffer;
 
-String demon = "1488";
+String demon = "boba";
 
 
 char key;
@@ -220,7 +221,9 @@ void pass_check() {
           Serial.println("Замок открыт");
           digitalWrite(LEDBLUE_PIN, LOW);
           digitalWrite(LEDGREAN_PIN, HIGH);
-          delay(5000);  // время открытого замка
+          controlop1();
+          delay(10000);
+          controlcl1();  // время открытого замка
           Serial.println("Замок закрыт");
           digitalWrite(LEDGREAN_PIN, LOW);
           digitalWrite(LEDRED_PIN, HIGH);
@@ -321,7 +324,7 @@ void controlop1() {
   client.connect(host, 80);
 
   Serial.println("connected к открыть]");
-  client.print("GET /controlop1.php?");
+  client.print("GET /controlop.php?");
   client.println(" HTTP/1.1");
   client.print("Host: ");
   client.println(host);
@@ -350,7 +353,7 @@ void controlcl1() {
   client.connect(host, 80);
 
   Serial.println("connected к закрыть]");
-  client.print("GET /controlcl1.php?");
+  client.print("GET /controlcl.php?");
   client.println(" HTTP/1.1");
   client.print("Host: ");
   client.println(host);
