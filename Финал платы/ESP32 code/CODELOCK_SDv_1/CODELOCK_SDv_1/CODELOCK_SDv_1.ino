@@ -84,14 +84,13 @@ void setup() {
   pinMode(LEDRED_PIN, OUTPUT);
 
   Serial.println("Активация пароля из энергонезависимой памяти");
-  int_pass = EEPROM.get(0, int_pass);  // вспоминаем пароль из памяти
+  int_pass = EEPROM.get(0, int_pass);  
   Serial.print("Пароля из энергонезависимой памяти:");
   Serial.println(int_pass);
 
 
-  str_pass = String(int_pass, DEC);  // переводим в строчный тип
-  pass_lenght = str_pass.length();   // получиаем длину пароля
-
+  str_pass = String(int_pass, DEC); 
+  pass_lenght = str_pass.length();   
   digitalWrite(LEDBLUE_PIN, HIGH);
   digitalWrite(LEDGREAN_PIN, HIGH);
   digitalWrite(LEDRED_PIN, HIGH);
@@ -106,60 +105,60 @@ void setup() {
 
   //Serial.println(str_pass.length());
 
-  str_pass = "";  // сброс пароля (пустая строка)
+  str_pass = "";  
 
 
 
 
 
-  pass_timer = millis();    // сброс таймера ввода пароля
-  while (1) {               // бесконечный цикл
-    key = keypad.getKey();  // обработка нажатия
+  pass_timer = millis();    
+  while (1) {              
+    key = keypad.getKey();  
 
     digitalWrite(LEDGREAN_PIN, LOW);
 
 
 
 
-    if (key != NO_KEY) {  // если была нажата
+    if (key != NO_KEY) { 
 
       digitalWrite(LEDBLUE_PIN, LOW);
       digitalWrite(LEDRED_PIN, LOW);
       digitalWrite(LEDGREAN_PIN, HIGH);
       delay(100);
 
-      pass_timer = millis();  // сбросить таймер
-      if (key == '*') {       // если нажата *
+      pass_timer = millis();  
+      if (key == '*') {       
 
         digitalWrite(LEDBLUE_PIN, HIGH);
         digitalWrite(LEDGREAN_PIN, HIGH);
         digitalWrite(LEDRED_PIN, HIGH);
 
 
-        int_pass = str_pass.toInt();  // перевести в число
-        EEPROM.put(0, int_pass);      // записать в память
+        int_pass = str_pass.toInt();  
+        EEPROM.put(0, int_pass);      
         EEPROM.commit();
         Serial.println("Пароль записан в энергонезависимую память.");
         Serial.println(int_pass);
 
 
 
-        pass_lenght = str_pass.length();  // получиаем длину пароля
+        pass_lenght = str_pass.length();  
 
         digitalWrite(LEDBLUE_PIN, LOW);
         digitalWrite(LEDGREAN_PIN, LOW);
         digitalWrite(LEDRED_PIN, LOW);
 
 
-        break;                  // выйти из цикла
-      } else if (key == '#') {  // если нажата #
-        str_pass = "";          // начать ввод сначала
-      } else {                  // если * не нажата
-        str_pass += key;        // прибавить нажатую цифру к паролю
+        break;                  
+      } else if (key == '#') {  
+        str_pass = "";          
+      } else {                 
+        str_pass += key;        
       }
     }
-    if (millis() - pass_timer > 10000) {  // если сработал таймер
-      str_pass = String(int_pass, DEC);   // сбросить ввод и выйти из цикла
+    if (millis() - pass_timer > 10000) {  
+      str_pass = String(int_pass, DEC);   
                                           //Serial.println(str_pass.length());
       Serial.println("Пароль из энергонезависимой памяти");
       Serial.println(int_pass);
@@ -182,33 +181,32 @@ void pass_check() {
   // Serial.println(str_pass);
 
 
-  key = keypad.getKey();  // обработка нажатия
-  if (key == '*') {       // если была нажата *
+  key = keypad.getKey();  
+  if (key == '*') {       
     Serial.println("звезда");
 
-    pass_timer = millis();  // сбросить таймер
+    pass_timer = millis();  
     j = 0;
-    while (1) {  // бесконечный цикл ввода пароля
+    while (1) {  
 
       digitalWrite(LEDBLUE_PIN, HIGH);
       digitalWrite(LEDRED_PIN, LOW);
 
 
-      key = keypad.getKey();  // обработка нажатия
-      if (key != NO_KEY) {    // если была нажата
+      key = keypad.getKey();  
+      if (key != NO_KEY) {   
 
         digitalWrite(LEDGREAN_PIN, HIGH);
         delay(100);
         digitalWrite(LEDGREAN_PIN, LOW);
 
-        pass_timer = millis();     // сбросить таймер
-        if (key == str_pass[j]) {  // если новая введённая цифра совпала с цифрой пароля
-          j++;                     // прибавить счётчик
-        } else {                   // если нет
-          j = 0;                   // начать с начала
+        pass_timer = millis();     
+        if (key == str_pass[j]) {  
+          j++;                     
+        } else {                   
+          j = 0;                   
         }
-        if (j == pass_lenght) {  // если были введены все правильные цифры пароля
-
+        if (j == pass_lenght) {  
 
           Serial.println("Замок открыт");
           digitalWrite(LEDBLUE_PIN, LOW);
@@ -224,7 +222,7 @@ void pass_check() {
           break;  // выйти из цикла
         }
         if (key == '#') {
-          // Serial.println("решето");  // если нажата #
+          // Serial.println("решето");  
 
           digitalWrite(LEDBLUE_PIN, LOW);
           digitalWrite(LEDGREAN_PIN, LOW);
@@ -233,7 +231,7 @@ void pass_check() {
           break;  // выйти из цикла
         }
       }
-      if (millis() - pass_timer > 10000) {  // если сработал таймер
+      if (millis() - pass_timer > 10000) { 
 
         digitalWrite(LEDBLUE_PIN, LOW);
         digitalWrite(LEDGREAN_PIN, LOW);
@@ -297,16 +295,16 @@ void Demon(String path2) {
 
   if (file) {
     Serial.println("SD Card найдена");
-    Serial.println("Имя файла апаратного кода успешно рааспознано");  // считываем все байты из файла и выводим их в COM-порт
-    while (file.available())                                          //Читаем содержимое файла
+    Serial.println("Имя файла апаратного кода успешно рааспознано"); 
+    while (file.available())                                          
     {
-      buffer = file.readStringUntil('\n');  //Считываем с карты весь дотекст в строку до символа окончания.
+      buffer = file.readStringUntil('\n');  
 
       if (buffer == demon) {
         Serial.println("Апаратный код успешно распознан рааспознан");
         Serial.println("Активация апаратного кода");
         Serial.print("Апаратный код:");
-        Serial.println(demon);  // для отладки отправляем по UART все что прочитали с карты.
+        Serial.println(demon);  
       } else {
         Serial.println("Апаратный код не рааспознан");
       }
